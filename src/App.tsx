@@ -8,7 +8,6 @@ import {
 } from "react-router-dom";
 
 import Home from "./pages/Home/Home";
-import About from "./pages/About/About";
 import Notes from "./pages/Notes/Notes";
 
 /**
@@ -32,7 +31,6 @@ const App: React.FC = () => {
         {/* Wrap pages in Layout if you need shared UI */}
         <Route element={<Layout />}>
           <Route path="/home" element={<Home />} />
-          <Route path="/about" element={<About />} />
           <Route path="/notes" element={<Notes />} />
         </Route>
 

@@ -19,9 +19,6 @@ const Home: React.FC = () => {
             Start Writing
             <span>→</span>
           </Link>
-          <Link to="/about" className="home-cta-secondary">
-            Learn More
-          </Link>
         </div>
       </section>
 
