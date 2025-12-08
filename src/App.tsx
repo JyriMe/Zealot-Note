@@ -7,8 +7,8 @@ import {
   Outlet,
 } from "react-router-dom";
 
-import Home from "../src/pages/Home/Home";
-import About from "../src/pages/About/About";
+import Home from "./pages/Home/Home";
+import About from "./pages/About/About";
 // Future import: import Notes from "./pages/Notes";
 
 /**
