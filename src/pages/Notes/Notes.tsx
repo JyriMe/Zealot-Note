@@ -79,7 +79,10 @@ const Notes: React.FC = () => {
 
   const handleCancelEdit = () => {
     setIsCreatingNew(false);
-    setSelectedNoteId(null);
+    // Only clear selection if creating a new note, keep it if editing existing
+    if (isCreatingNew) {
+      setSelectedNoteId(null);
+    }
   };
 
   const showEditor = isCreatingNew || selectedNoteId;
