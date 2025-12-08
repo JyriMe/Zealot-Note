@@ -1,0 +1,68 @@
+.notes-page {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.notes-sidebar {
+  width: 320px;
+  background-color: #f8f9fa;
+  border-right: 1px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
+}
+
+.notes-sidebar-header {
+  padding: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+  background: white;
+}
+
+.notes-sidebar-header h2 {
+  margin: 0 0 1rem 0;
+  font-size: 1.25rem;
+}
+
+.notes-sidebar-header .button {
+  width: 100%;
+}
+
+.notes-content {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+  background-color: var(--color-bg);
+}
+
+.notes-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: var(--color-muted);
+}
+
+.notes-empty-state h2 {
+  margin-bottom: 0.5rem;
+  color: var(--color-text);
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+  .notes-page {
+    flex-direction: column;
+  }
+
+  .notes-sidebar {
+    width: 100%;
+    max-height: 40vh;
+    border-right: none;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .notes-content {
+    padding: 1rem;
+  }
+}

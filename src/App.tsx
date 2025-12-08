@@ -9,7 +9,7 @@ import {
 
 import Home from "./pages/Home/Home";
 import About from "./pages/About/About";
-// Future import: import Notes from "./pages/Notes";
+import Notes from "./pages/Notes/Notes";
 
 /**
  * Optional Layout component – you can expand it with a header/footer later.
@@ -33,7 +33,7 @@ const App: React.FC = () => {
         <Route element={<Layout />}>
           <Route path="/home" element={<Home />} />
           <Route path="/about" element={<About />} />
-          {/* <Route path="/notes" element={<Notes />} /> */}
+          <Route path="/notes" element={<Notes />} />
         </Route>
 
         {/* Fallback 404 */}
