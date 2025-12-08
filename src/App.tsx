@@ -1,35 +1,54 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from "react";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  Outlet,
+} from "react-router-dom";
 
-function App() {
-  const [count, setCount] = useState(0)
+import Home from "../src/pages/Home/Home";
+import About from "../src/pages/About/About";
+// Future import: import Notes from "./pages/Notes";
 
+/**
+ * Optional Layout component – you can expand it with a header/footer later.
+ */
+const Layout: React.FC = () => (
+  <>
+    {/* Place a persistent Header here if you want */}
+    <Outlet />
+    {/* Persistent Footer could go here */}
+  </>
+);
+
+const App: React.FC = () => {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <BrowserRouter>
+      <Routes>
+        {/* Redirect root to /home */}
+        <Route path="/" element={<Navigate to="/home" replace />} />
 
-export default App
+        {/* Wrap pages in Layout if you need shared UI */}
+        <Route element={<Layout />}>
+          <Route path="/home" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          {/* <Route path="/notes" element={<Notes />} /> */}
+        </Route>
+
+        {/* Fallback 404 */}
+        <Route
+          path="*"
+          element={
+            <section className="u-padded">
+              <h2>Page not found</h2>
+              <p>Sorry, that URL doesn’t exist.</p>
+            </section>
+          }
+        />
+      </Routes>
+    </BrowserRouter>
+  );
+};
+
+export default App;
