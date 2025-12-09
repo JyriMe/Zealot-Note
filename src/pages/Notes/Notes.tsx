@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import type { Note, Folder } from "../../features/notes/components/types/noteTypes";
 import { parseNotesFromStorage, parseFoldersFromStorage } from "../../utils/helpers";
 import FolderList from "../../features/notes/components/FolderList/FolderList";
@@ -6,7 +6,7 @@ import NoteList from "../../features/notes/components/NoteList/NoteList";
 import NoteEditor from "../../features/notes/components/noteEditor/NoteEditor";
 import "./Notes.css";
 
-const Notes: React.FC = () => {
+const Notes = () => {
   // State
   const [folders, setFolders] = useState<Folder[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);

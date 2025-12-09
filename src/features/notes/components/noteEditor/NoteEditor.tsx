@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import type { Note } from "../types/noteTypes";
 import "./NoteEditor.css";
@@ -9,7 +9,7 @@ interface NoteEditorProps {
   onCancel?: () => void;
 }
 
-const NoteEditor: React.FC<NoteEditorProps> = ({ note, onSave, onCancel }) => {
+const NoteEditor = ({ note, onSave, onCancel }: NoteEditorProps) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [viewMode, setViewMode] = useState<"edit" | "preview" | "split">("edit");

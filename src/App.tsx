@@ -1,4 +1,3 @@
-import React from "react";
 import {
   BrowserRouter,
   Routes,
@@ -11,13 +10,13 @@ import Home from "./pages/Home/Home";
 import Notes from "./pages/Notes/Notes";
 
 // Layout wrapper - <Outlet /> renders the child route components
-const Layout: React.FC = () => (
+const Layout = () => (
   <>
     <Outlet />
   </>
 );
 
-const App: React.FC = () => {
+const App = () => {
   return (
     <BrowserRouter>
       <Routes>

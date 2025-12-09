@@ -15,8 +15,8 @@ export const truncateText = (text: string, maxLength = 60): string => {
   return text.substring(0, maxLength) + "...";
 };
 
-// Validate Note object structure
-export const isValidNote = (obj: unknown): obj is Note => {
+// Validate Note object structure (internal helper)
+const isValidNote = (obj: unknown): obj is Note => {
   if (typeof obj !== "object" || obj === null) return false;
   const note = obj as Record<string, unknown>;
   return (
@@ -28,8 +28,8 @@ export const isValidNote = (obj: unknown): obj is Note => {
   );
 };
 
-// Validate Folder object structure
-export const isValidFolder = (obj: unknown): obj is Folder => {
+// Validate Folder object structure (internal helper)
+const isValidFolder = (obj: unknown): obj is Folder => {
   if (typeof obj !== "object" || obj === null) return false;
   const folder = obj as Record<string, unknown>;
   return (

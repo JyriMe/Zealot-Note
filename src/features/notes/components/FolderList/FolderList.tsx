@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import type { Folder } from "../types/noteTypes";
 import "./FolderList.css";
 
@@ -9,10 +9,10 @@ interface FolderListProps {
   onCreateFolder: (name: string) => void;
   onDeleteFolder: (folderId: string) => void;
   onRenameFolder: (folderId: string, newName: string) => void;
-  noteCounts: Record<string, number>; // folder id -> note count
+  noteCounts: Record<string, number>;
 }
 
-const FolderList: React.FC<FolderListProps> = ({
+const FolderList = ({
   folders,
   selectedFolderId,
   onSelectFolder,
@@ -20,7 +20,7 @@ const FolderList: React.FC<FolderListProps> = ({
   onDeleteFolder,
   onRenameFolder,
   noteCounts,
-}) => {
+}: FolderListProps) => {
   const [isCreating, setIsCreating] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);

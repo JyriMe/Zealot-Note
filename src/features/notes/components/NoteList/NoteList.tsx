@@ -1,4 +1,4 @@
-import React, { useState, memo } from "react";
+import { useState, memo } from "react";
 import type { Note, Folder } from "../types/noteTypes";
 import { formatDate, truncateText } from "../../../../utils/helpers";
 import "./NoteList.css";
@@ -12,14 +12,14 @@ interface NoteListProps {
   onMoveNote: (noteId: string, folderId: string | null) => void;
 }
 
-const NoteList: React.FC<NoteListProps> = memo(({
+const NoteList = memo(({
   notes,
   folders,
   selectedNoteId,
   onSelectNote,
   onDeleteNote,
   onMoveNote,
-}) => {
+}: NoteListProps) => {
   const [movingNoteId, setMovingNoteId] = useState<string | null>(null);
 
   // Empty state

@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import "./Home.css";
 
@@ -6,7 +5,7 @@ import "./Home.css";
  * The landing page of the note‑taking app.
  * Modern, appealing design with hero section and feature highlights.
  */
-const Home: React.FC = () => {
+const Home = () => {
   return (
     <div className="home-page">
       <section className="home-hero">
