@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import type { Note, Folder } from "../../features/notes/components/types/noteTypes";
+import { parseNotesFromStorage, parseFoldersFromStorage } from "../../utils/helpers";
 import FolderList from "../../features/notes/components/FolderList/FolderList";
 import NoteList from "../../features/notes/components/NoteList/NoteList";
 import NoteEditor from "../../features/notes/components/noteEditor/NoteEditor";
@@ -13,31 +14,17 @@ const Notes: React.FC = () => {
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
   const [isCreatingNew, setIsCreatingNew] = useState(false);
 
-  // Load data from localStorage on mount
+  // Load data from localStorage on mount with validation
   useEffect(() => {
     const savedFolders = localStorage.getItem("zealot-folders");
     const savedNotes = localStorage.getItem("zealot-notes");
 
     if (savedFolders) {
-      try {
-        setFolders(JSON.parse(savedFolders));
-      } catch (error) {
-        console.error("Failed to load folders:", error);
-      }
+      setFolders(parseFoldersFromStorage(savedFolders));
     }
 
     if (savedNotes) {
-      try {
-        const parsedNotes = JSON.parse(savedNotes);
-        // Migration: add folderId if missing
-        const migratedNotes = parsedNotes.map((note: Note) => ({
-          ...note,
-          folderId: note.folderId ?? null,
-        }));
-        setNotes(migratedNotes);
-      } catch (error) {
-        console.error("Failed to load notes:", error);
-      }
+      setNotes(parseNotesFromStorage(savedNotes));
     }
   }, []);
 
@@ -51,36 +38,46 @@ const Notes: React.FC = () => {
     localStorage.setItem("zealot-notes", JSON.stringify(notes));
   }, [notes]);
 
-  // Filter notes by selected folder
-  const filteredNotes =
-    selectedFolderId === null
-      ? notes
-      : notes.filter((note) => note.folderId === selectedFolderId);
-
-  // Get note counts per folder
-  const noteCounts = notes.reduce(
-    (acc, note) => {
-      const key = note.folderId || "unfiled";
-      acc[key] = (acc[key] || 0) + 1;
-      return acc;
-    },
-    {} as Record<string, number>
+  // Filter notes by selected folder (memoized)
+  const filteredNotes = useMemo(
+    () =>
+      selectedFolderId === null
+        ? notes
+        : notes.filter((note) => note.folderId === selectedFolderId),
+    [notes, selectedFolderId]
   );
 
-  // Get the selected note object
-  const selectedNote = notes.find((note) => note.id === selectedNoteId) || null;
+  // Get note counts per folder (memoized)
+  const noteCounts = useMemo(
+    () =>
+      notes.reduce(
+        (acc, note) => {
+          const key = note.folderId || "unfiled";
+          acc[key] = (acc[key] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>
+      ),
+    [notes]
+  );
 
-  // Folder handlers
-  const handleCreateFolder = (name: string) => {
+  // Get the selected note object (memoized)
+  const selectedNote = useMemo(
+    () => notes.find((note) => note.id === selectedNoteId) || null,
+    [notes, selectedNoteId]
+  );
+
+  // Folder handlers (wrapped with useCallback for performance)
+  const handleCreateFolder = useCallback((name: string) => {
     const newFolder: Folder = {
       id: crypto.randomUUID(),
       name,
       createdAt: Date.now(),
     };
     setFolders((prev) => [...prev, newFolder]);
-  };
+  }, []);
 
-  const handleDeleteFolder = (folderId: string) => {
+  const handleDeleteFolder = useCallback((folderId: string) => {
     setFolders((prev) => prev.filter((f) => f.id !== folderId));
     // Move notes from deleted folder to unfiled
     setNotes((prev) =>
@@ -88,81 +85,92 @@ const Notes: React.FC = () => {
         note.folderId === folderId ? { ...note, folderId: null } : note
       )
     );
-    if (selectedFolderId === folderId) {
-      setSelectedFolderId(null);
-    }
-  };
+    setSelectedFolderId((prev) => (prev === folderId ? null : prev));
+  }, []);
 
-  const handleRenameFolder = (folderId: string, newName: string) => {
+  const handleRenameFolder = useCallback((folderId: string, newName: string) => {
     setFolders((prev) =>
       prev.map((f) => (f.id === folderId ? { ...f, name: newName } : f))
     );
-  };
+  }, []);
 
-  // Note handlers
-  const handleCreateNew = () => {
+  // Note handlers (wrapped with useCallback for performance)
+  const handleCreateNew = useCallback(() => {
     setSelectedNoteId(null);
     setIsCreatingNew(true);
-  };
+  }, []);
 
-  const handleSelectNote = (noteId: string) => {
+  const handleSelectNote = useCallback((noteId: string) => {
     setSelectedNoteId(noteId);
     setIsCreatingNew(false);
-  };
+  }, []);
 
-  const handleSaveNote = (title: string, content: string) => {
+  const handleSaveNote = useCallback((title: string, content: string) => {
     const now = Date.now();
 
-    if (selectedNoteId) {
-      // Update existing note
-      setNotes((prev) =>
-        prev.map((note) =>
-          note.id === selectedNoteId
-            ? { ...note, title, content, updatedAt: now }
-            : note
-        )
-      );
-    } else {
-      // Create new note in current folder
-      const newNote: Note = {
-        id: crypto.randomUUID(),
-        title,
-        content,
-        folderId: selectedFolderId,
-        createdAt: now,
-        updatedAt: now,
-      };
-      setNotes((prev) => [newNote, ...prev]);
-      setSelectedNoteId(newNote.id);
-    }
+    setSelectedNoteId((currentSelectedId) => {
+      if (currentSelectedId) {
+        // Update existing note
+        setNotes((prev) =>
+          prev.map((note) =>
+            note.id === currentSelectedId
+              ? { ...note, title, content, updatedAt: now }
+              : note
+          )
+        );
+        setIsCreatingNew(false);
+        return currentSelectedId;
+      } else {
+        // Create new note in current folder
+        const newNote: Note = {
+          id: crypto.randomUUID(),
+          title,
+          content,
+          folderId: null, // Will be set properly below
+          createdAt: now,
+          updatedAt: now,
+        };
+        setSelectedFolderId((currentFolderId) => {
+          newNote.folderId = currentFolderId;
+          setNotes((prev) => [newNote, ...prev]);
+          return currentFolderId;
+        });
+        setIsCreatingNew(false);
+        return newNote.id;
+      }
+    });
+  }, []);
 
-    setIsCreatingNew(false);
-  };
-
-  const handleDeleteNote = (noteId: string) => {
+  const handleDeleteNote = useCallback((noteId: string) => {
     if (window.confirm("Are you sure you want to delete this note?")) {
       setNotes((prev) => prev.filter((note) => note.id !== noteId));
-      if (selectedNoteId === noteId) {
-        setSelectedNoteId(null);
-        setIsCreatingNew(false);
-      }
+      setSelectedNoteId((prev) => {
+        if (prev === noteId) {
+          setIsCreatingNew(false);
+          return null;
+        }
+        return prev;
+      });
     }
-  };
+  }, []);
 
-  const handleMoveNote = (noteId: string, folderId: string | null) => {
+  const handleMoveNote = useCallback((noteId: string, folderId: string | null) => {
     setNotes((prev) =>
       prev.map((note) =>
         note.id === noteId ? { ...note, folderId, updatedAt: Date.now() } : note
       )
     );
-  };
+  }, []);
 
-  const handleCancelEdit = () => {
-    setIsCreatingNew(false);
-    if (isCreatingNew) {
-      setSelectedNoteId(null);
-    }
-  };
+  // Fixed: Check isCreatingNew BEFORE setting it to false
+  const handleCancelEdit = useCallback(() => {
+    setIsCreatingNew((wasCreatingNew) => {
+      if (wasCreatingNew) {
+        setSelectedNoteId(null);
+      }
+      return false;
+    });
+  }, []);
 
   const showEditor = isCreatingNew || selectedNoteId;
 

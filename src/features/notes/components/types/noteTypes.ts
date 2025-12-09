@@ -13,14 +13,4 @@ export interface Note {
   folderId: string | null; // null = unfiled/root level
   createdAt: number;
   updatedAt: number;
-  tags?: string[];
-}
-
-// State structure for notes management
-export interface NotesState {
-  folders: Folder[];
-  notes: Note[];
-  selectedFolderId: string | null;
-  selectedNoteId: string | null;
-  searchQuery: string;
 }

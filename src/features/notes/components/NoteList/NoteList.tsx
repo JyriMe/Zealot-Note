@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, memo } from "react";
 import type { Note, Folder } from "../types/noteTypes";
+import { formatDate, truncateText } from "../../../../utils/helpers";
 import "./NoteList.css";
 
 interface NoteListProps {
@@ -11,7 +12,7 @@ interface NoteListProps {
   onMoveNote: (noteId: string, folderId: string | null) => void;
 }
 
-const NoteList: React.FC<NoteListProps> = ({
+const NoteList: React.FC<NoteListProps> = memo(({
   notes,
   folders,
   selectedNoteId,
@@ -20,21 +21,6 @@ const NoteList: React.FC<NoteListProps> = ({
   onMoveNote,
 }) => {
   const [movingNoteId, setMovingNoteId] = useState<string | null>(null);
-
-  // Format timestamp to readable date
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
-
-  // Shorten text with ellipsis
-  const truncateContent = (content: string, maxLength = 60) => {
-    if (content.length <= maxLength) return content;
-    return content.substring(0, maxLength) + "...";
-  };
 
   // Empty state
   if (notes.length === 0) {
@@ -52,6 +38,11 @@ const NoteList: React.FC<NoteListProps> = ({
           key={note.id}
           className={`note-item ${selectedNoteId === note.id ? "selected" : ""}`}
           onClick={() => onSelectNote(note.id)}
+          role="button"
+          tabIndex={0}
+          aria-label={`Note: ${note.title || "Untitled Note"}`}
+          aria-selected={selectedNoteId === note.id}
+          onKeyDown={(e) => e.key === "Enter" && onSelectNote(note.id)}
         >
           <div className="note-item-header">
             <h3 className="note-item-title">{note.title || "Untitled Note"}</h3>
@@ -64,6 +55,8 @@ const NoteList: React.FC<NoteListProps> = ({
                   setMovingNoteId(movingNoteId === note.id ? null : note.id);
                 }}
                 title="Move to folder"
+                aria-label="Move note to folder"
+                aria-expanded={movingNoteId === note.id}
               >
                 📁
               </button>
@@ -108,12 +101,12 @@ const NoteList: React.FC<NoteListProps> = ({
             </div>
           )}
 
-          <p className="note-item-preview">{truncateContent(note.content)}</p>
+          <p className="note-item-preview">{truncateText(note.content)}</p>
           <span className="note-item-date">{formatDate(note.updatedAt)}</span>
         </div>
       ))}
     </div>
   );
-};
+});
 
 export default NoteList;
